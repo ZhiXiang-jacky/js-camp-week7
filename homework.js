@@ -180,8 +180,11 @@ async function getProductsWithAxios() {
   // 請實作此函式
   // 提示：axios.get() 會自動解析 JSON，不需要 .json()
   // 回傳 response.data.products
-  const response = await axios.get(`https://livejs-api.hexschool.io/api/livejs/v1/customer/xiang/products`)
-  console.log(response)
+  const response = await axios.get(`${BASE_URL}/api/livejs/v1/customer/${API_PATH}/products`,
+    { headers: { authorization: ADMIN_TOKEN } } 
+  )
+  // console.log(response)
+  return response.data.products
 }
 
 /**
@@ -193,6 +196,16 @@ async function getProductsWithAxios() {
 async function addToCartWithAxios(productId, quantity) {
   // 請實作此函式
   // 提示：axios.post(url, data) 會自動設定 Content-Type
+  const response = await axios.post(`${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts`,
+    {
+      data:{
+        productId,
+        quantity
+      }
+
+    })
+    console.log("檢查",response)
+    return response.data
 }
 
 /**
@@ -202,16 +215,23 @@ async function addToCartWithAxios(productId, quantity) {
 async function getOrdersWithAxios() {
   // 請實作此函式
   // 提示：axios.get(url, { headers: { authorization: token } })
+  // console.log(`${BASE_URL}/api/livejs/v1/customer/admin/${API_PATH}/orders`)
+  // console.log(await axios.get(`${BASE_URL}/api/livejs/v1/customer/${API_PATH}/orders`)
+  const response = await axios.get(`${BASE_URL}/api/livejs/v1/admin/${API_PATH}/orders`,
+    { headers: { authorization: ADMIN_TOKEN } } 
+  )
+  console.log("資料確認",response.data.orders)
+  return response.data.orders
 }
 
 /*
 比較題：請說明 fetch 和 axios 的主要差異
 
-1. ____________________________________
+1.  axios 會自動將回傳的 JSON 字串轉換為 JavaScript 物件,_不用再呼叫.json_
 
-2. ____________________________________
+2. _axios 錯誤處理機制不同,_4xx/5xx 自動拋錯，直接進 catch__
 
-3. ____________________________________
+3. _axios 在post 不用再手動設定 手動設 headers: { 'Content-Type': 'application/json' }
 */
 
 // ========================================
@@ -232,6 +252,10 @@ const OrderService = {
    */
   async fetchOrders() {
     // 請實作此函式
+    const response =  await axios.get(`${BASE_URL}/api/livejs/v1/admin/${API_PATH}/orders`,
+    { headers: { authorization: ADMIN_TOKEN } })
+
+    return response.data.orders
   },
 
   /**
@@ -241,6 +265,7 @@ const OrderService = {
    */
   formatOrders(orders) {
     // 請實作此函式
+    const data = fetchOrders()
   },
 
   /**
