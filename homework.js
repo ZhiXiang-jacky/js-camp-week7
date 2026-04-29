@@ -25,6 +25,8 @@ const ADMIN_TOKEN = process.env.API_KEY;
 function formatOrderDate(timestamp) {
   // 請實作此函式
   // 提示：dayjs.unix(timestamp).format('YYYY/MM/DD HH:mm')
+  const formatted = dayjs.unix(timestamp).format('YYYY/MM/DD HH:mm')
+  return formatted
 }
 
 /**
@@ -38,6 +40,15 @@ function getDaysAgo(timestamp) {
   // 1. 用 dayjs() 取得今天
   // 2. 用 dayjs.unix(timestamp) 取得訂單日期
   // 3. 用 .diff() 計算天數差異
+  const Target_Day = dayjs.unix(timestamp)
+  const diff_day = dayjs().diff(Target_Day, 'day')
+  // console.log(diff_day+"天前")
+  if (diff_day ===0){
+    return "今天"
+  }else{
+    return `${diff_day} 天前`
+  }
+  
 }
 
 /**
@@ -47,6 +58,14 @@ function getDaysAgo(timestamp) {
  */
 function isOrderOverdue(timestamp) {
   // 請實作此函式
+  const Target_Day = dayjs.unix(timestamp)
+  // const diff_day = dayjs().diff(Target_Day,"day")
+  // if(diff_day >7 ){
+  //   return true
+  // }else{
+  //   return false
+  // }
+  return dayjs().diff(Target_Day,"day") > 7
 }
 
 /**
@@ -60,6 +79,16 @@ function getThisWeekOrders(orders) {
   // 1. 用 dayjs().startOf('week') 取得本週開始
   // 2. 用 dayjs().endOf('week') 取得本週結束
   // 3. 用 .isBefore() 和 .isAfter() 判斷
+  const weekStart = dayjs().startOf('week');
+  console.log(weekStart.format('YYYY-MM-DD HH:mm:ss'))
+  const weekEnd = dayjs().endOf('week')
+  console.log(weekEnd.format('YYYY-MM-DD HH:mm:ss'))
+
+  const data= orders.filter(item => 
+  dayjs.unix(item.createdAt).isBefore(weekEnd) && 
+  dayjs.unix(item.createdAt).isAfter(weekStart)
+  )
+  return data
 }
 
 // ========================================
@@ -80,7 +109,21 @@ function getThisWeekOrders(orders) {
  */
 function validateOrderUser(data) {
   // 請實作此函式
-}
+    const errors = []
+    const payment_list = ['ATM', 'Credit Card', 'Apple Pay']
+
+    if (data.name.trim() ==="") errors.push("name: 不可為空")
+    if (!/^09\d{8}$/.test(data.tel)) errors. push("tel: 必須是 09 開頭的 10 位數字")
+    if (!data.email.includes("@")) errors.push("必須包含 @ 符號")
+    if (data.address.trim() ==="") errors.push("address: 不可為空")
+    if (!payment_list.includes(data.payment)) errors.push("payment: 必須是 'ATM', 'Credit Card', 'Apple Pay' 其中之一")
+    if (errors.length === 0){
+      return {isValid:true, errors}
+    }else{
+      return {isValid:false, errors}
+    }
+
+  }
 
 /**
  * 2. 驗證購物車數量
@@ -94,6 +137,11 @@ function validateOrderUser(data) {
  */
 function validateCartQuantity(quantity) {
   // 請實作此函式
+  if (!Number.isInteger(quantity)|| quantity < 1 || quantity >99){
+    return {isValid:false, error:"數量不能等於0或等於100"}
+  }
+  return {isValid:true};
+  // Number.isInteger(quantity) && quantity > 0
 }
 
 // ========================================
@@ -107,6 +155,7 @@ function validateCartQuantity(quantity) {
 function generateOrderId() {
   // 請實作此函式
   // 提示：可以用 Date.now().toString(36) + Math.random().toString(36).slice(2)
+  return `ORD-${Math.random().toString(36).slice(2,10)}`
 }
 
 /**
@@ -115,6 +164,8 @@ function generateOrderId() {
  */
 function generateCartItemId() {
   // 請實作此函式
+
+  return `CART-${Math.random().toString(36).slice(2,10)}`
 }
 
 // ========================================
@@ -129,6 +180,8 @@ async function getProductsWithAxios() {
   // 請實作此函式
   // 提示：axios.get() 會自動解析 JSON，不需要 .json()
   // 回傳 response.data.products
+  const response = await axios.get(`https://livejs-api.hexschool.io/api/livejs/v1/customer/xiang/products`)
+  console.log(response)
 }
 
 /**
@@ -255,7 +308,7 @@ if (require.main === module) {
     console.log('=== 第七週作業測試 ===\n');
     console.log('API_PATH:', API_PATH);
     console.log('');
-
+    console.log('👀 我是照妖鏡 testOrders[1].createdAt：', testOrders[1].createdAt);
     // 任務一測試
     console.log('--- 任務一：dayjs 日期處理 ---');
     const timestamp = 1704067200;
