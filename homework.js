@@ -265,7 +265,22 @@ const OrderService = {
    */
   formatOrders(orders) {
     // 請實作此函式
-    const data = fetchOrders()
+    //舊寫法
+    // const format_orders = orders.map(function(item){
+    //   return{
+    //     ...item,
+    //     formattedDate:formatOrderDate(item.createdAt)
+    //   }
+    // })
+    // return format_orders
+
+    //改版寫法
+    return orders.map(item => {
+      return {
+        ...item,
+        formattedDate: formatOrderDate(item.createdAt)
+      }
+    })
   },
 
   /**
@@ -275,6 +290,12 @@ const OrderService = {
    */
   filterUnpaidOrders(orders) {
     // 請實作此函式
+    /*舊版*/
+    // return orders.filter(item => {
+    //   return item.paid === false
+    // })
+    /*優化 */
+    return orders.filter( item => item.paid === false);
   },
 
   /**
@@ -282,6 +303,7 @@ const OrderService = {
    * @param {Object} userInfo - 使用者資料
    * @returns {Object} - 驗證結果
    */
+
   validateUserInfo(userInfo) {
     return validateOrderUser(userInfo);
   },
